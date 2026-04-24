@@ -141,46 +141,49 @@ if ($result_alertas) {
             </div>
         </div>
 
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card mb-3 h-100 module-card">
-                    <div class="card-header">Controle de Produtos</div>
-                    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+            <h4 class="mb-0">Acesso rápido aos módulos</h4>
+        </div>
+        <div class="row g-4 module-grid">
+            <div class="col-12 col-md-6">
+                <div class="card h-100 module-card">
+                    <div class="card-header"><i class="fas fa-cubes me-2"></i>Controle de Produtos</div>
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title">Gerenciar Produtos</h5>
                         <p class="card-text">Visualize e edite os produtos disponíveis no estoque.</p>
-                        <a href="<?php echo $base_url; ?>/produtos" class="btn btn-primary btn-sm">Ir para Produtos</a>
+                        <a href="<?php echo $base_url; ?>/produtos" class="btn btn-primary btn-sm mt-auto align-self-start">Ir para Produtos</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card mb-3 h-100 module-card">
-                    <div class="card-header">Movimentação e Saldo</div>
-                    <div class="card-body">
+            <div class="col-12 col-md-6">
+                <div class="card h-100 module-card">
+                    <div class="card-header"><i class="fas fa-boxes me-2"></i>Movimentação e Saldo</div>
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title">Lançar Entrada/Saída</h5>
                         <p class="card-text">Registre todas as entradas e saídas para manter o saldo atualizado.</p>
-                        <a href="<?php echo $base_url; ?>/estoque" class="btn btn-primary btn-sm">Ir para Estoque</a>
+                        <a href="<?php echo $base_url; ?>/estoque" class="btn btn-primary btn-sm mt-auto align-self-start">Ir para Estoque</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card mb-3 h-100 module-card">
-                    <div class="card-header">Registro de Fornecedores</div>
-                    <div class="card-body">
+            <div class="col-12 col-md-6">
+                <div class="card h-100 module-card">
+                    <div class="card-header"><i class="fas fa-truck me-2"></i>Registro de Fornecedores</div>
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title">Cadastro de Fornecedores</h5>
                         <p class="card-text">Mantenha os dados dos fornecedores atualizados.</p>
-                        <a href="<?php echo $base_url; ?>/fornecedores" class="btn btn-primary btn-sm">Ir para Fornecedores</a>
+                        <a href="<?php echo $base_url; ?>/fornecedores" class="btn btn-primary btn-sm mt-auto align-self-start">Ir para Fornecedores</a>
                     </div>
                 </div>
             </div>
 
             <?php if ($cargo_usuario == 'Administrador'): ?>
-            <div class="col-md-4">
-                <div class="card mb-3 h-100 module-card">
-                    <div class="card-header">Controle de Acesso</div>
-                    <div class="card-body">
+            <div class="col-12 col-md-6">
+                <div class="card h-100 module-card">
+                    <div class="card-header"><i class="fas fa-users-cog me-2"></i>Controle de Acesso</div>
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title">Gerenciar Usuários</h5>
                         <p class="card-text">Adicione ou inative usuários do sistema (apenas Administradores).</p>
-                        <a href="<?php echo $base_url; ?>/usuarios" class="btn btn-primary btn-sm">Ir para Usuários</a>
+                        <a href="<?php echo $base_url; ?>/usuarios" class="btn btn-primary btn-sm mt-auto align-self-start">Ir para Usuários</a>
                     </div>
                 </div>
             </div>

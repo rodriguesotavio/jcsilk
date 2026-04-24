@@ -226,6 +226,24 @@ p {
     color: #1e293b;
 }
 
+.module-card {
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.module-card:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.module-grid .card-title {
+    margin-bottom: 0.55rem;
+}
+
+.module-grid .card-text {
+    color: #475569;
+}
+
 .login-page {
     min-height: 100vh;
     display: flex;
