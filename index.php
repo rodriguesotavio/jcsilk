@@ -99,17 +99,16 @@ if ($result_alertas) {
         <div class="card mb-4">
             <div
                 class="card-header d-flex justify-content-between align-items-center collapsible-card-header"
+                id="toggleProdutosMinimosHeader"
                 role="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#painelProdutosMinimos"
                 aria-expanded="true"
                 aria-controls="painelProdutosMinimos">
                 <span>Produtos em Falta / Mínimo</span>
                 <div class="d-flex align-items-center gap-2">
-                    <a href="<?php echo $base_url; ?>/produtos" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">Ver cadastro completo</a>
+                    <a href="<?php echo $base_url; ?>/produtos" class="btn btn-sm btn-primary">Ver cadastro completo</a>
                 </div>
             </div>
-            <div class="collapse show" id="painelProdutosMinimos">
+            <div class="collapsible-panel is-expanded" id="painelProdutosMinimos">
             <div class="card-body">
                 <?php if (count($produtos_alerta) > 0): ?>
                     <div class="table-responsive">
@@ -150,6 +149,59 @@ if ($result_alertas) {
             </div>
             </div>
         </div>
+
+        <script>
+        (function () {
+            var header = document.getElementById('toggleProdutosMinimosHeader');
+            var painel = document.getElementById('painelProdutosMinimos');
+            if (!header || !painel) return;
+
+            function setExpandedState(expanded) {
+                header.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            }
+
+            function expandPanel() {
+                painel.classList.add('is-expanded');
+                painel.style.maxHeight = painel.scrollHeight + 'px';
+                painel.style.opacity = '1';
+                setExpandedState(true);
+            }
+
+            function collapsePanel() {
+                painel.style.maxHeight = painel.scrollHeight + 'px';
+                requestAnimationFrame(function () {
+                    painel.classList.remove('is-expanded');
+                    painel.style.maxHeight = '0px';
+                    painel.style.opacity = '0';
+                });
+                setExpandedState(false);
+            }
+
+            if (painel.classList.contains('is-expanded')) {
+                painel.style.maxHeight = painel.scrollHeight + 'px';
+                painel.style.opacity = '1';
+            } else {
+                painel.style.maxHeight = '0px';
+                painel.style.opacity = '0';
+            }
+
+            header.addEventListener('click', function (event) {
+                if (event.target.closest('a, button')) return;
+                var isExpanded = painel.classList.contains('is-expanded');
+                if (isExpanded) {
+                    collapsePanel();
+                } else {
+                    expandPanel();
+                }
+            });
+
+            window.addEventListener('resize', function () {
+                if (painel.classList.contains('is-expanded')) {
+                    painel.style.maxHeight = painel.scrollHeight + 'px';
+                }
+            });
+        })();
+        </script>
 
         <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
             <h4 class="mb-0">Acesso rápido</h4>
