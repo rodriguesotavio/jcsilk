@@ -1,6 +1,28 @@
 <?php
 require_once '../includes/header.php';
 
+$itens_por_pagina = 10;
+$pagina_atual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
+$pagina_atual = $pagina_atual > 0 ? $pagina_atual : 1;
+
+$sql_total = "SELECT COUNT(*) AS total FROM estoque";
+$result_total = mysqli_query($link, $sql_total);
+
+if (!$result_total) {
+    die("Erro ao contar movimentações de estoque: " . mysqli_error($link));
+}
+
+$total_registros = (int) mysqli_fetch_assoc($result_total)['total'];
+mysqli_free_result($result_total);
+$total_paginas = (int) ceil($total_registros / $itens_por_pagina);
+$total_paginas = $total_paginas > 0 ? $total_paginas : 1;
+
+if ($pagina_atual > $total_paginas) {
+    $pagina_atual = $total_paginas;
+}
+
+$offset = ($pagina_atual - 1) * $itens_por_pagina;
+
 $sql = "SELECT
             e.id_movimentacao,
             e.tipo_movimento,
@@ -16,7 +38,8 @@ $sql = "SELECT
         FROM estoque e
         JOIN produtos p ON e.id_produto = p.id_produto
         JOIN usuarios u ON e.id_usuario = u.id_usuario
-        ORDER BY e.data_movimento DESC";
+        ORDER BY e.data_movimento DESC
+        LIMIT {$itens_por_pagina} OFFSET {$offset}";
 
 $result = mysqli_query($link, $sql);
 
@@ -122,6 +145,34 @@ if(mysqli_num_rows($result) > 0):
         </tbody>
     </table>
 </div>
+<?php
+    $query_params = $_GET;
+    unset($query_params['pagina']);
+?>
+<nav aria-label="Paginação de movimentações de estoque" class="mt-4">
+    <ul class="pagination justify-content-end">
+        <?php
+            $pagina_anterior = $pagina_atual - 1;
+            $pagina_proxima = $pagina_atual + 1;
+            $url_anterior = '?' . http_build_query(array_merge($query_params, ['pagina' => $pagina_anterior]));
+            $url_proxima = '?' . http_build_query(array_merge($query_params, ['pagina' => $pagina_proxima]));
+        ?>
+        <li class="page-item <?php echo $pagina_atual <= 1 ? 'disabled' : ''; ?>">
+            <a class="page-link" href="<?php echo $pagina_atual <= 1 ? '#' : $url_anterior; ?>" aria-label="Página anterior">Anterior</a>
+        </li>
+
+        <?php for ($pagina = 1; $pagina <= $total_paginas; $pagina++): ?>
+            <?php $url_pagina = '?' . http_build_query(array_merge($query_params, ['pagina' => $pagina])); ?>
+            <li class="page-item <?php echo $pagina === $pagina_atual ? 'active' : ''; ?>">
+                <a class="page-link" href="<?php echo $url_pagina; ?>"><?php echo $pagina; ?></a>
+            </li>
+        <?php endfor; ?>
+
+        <li class="page-item <?php echo $pagina_atual >= $total_paginas ? 'disabled' : ''; ?>">
+            <a class="page-link" href="<?php echo $pagina_atual >= $total_paginas ? '#' : $url_proxima; ?>" aria-label="Próxima página">Próxima</a>
+        </li>
+    </ul>
+</nav>
 <?php
 mysqli_free_result($result);
 else:
