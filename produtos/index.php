@@ -48,10 +48,10 @@ $where_types = '';
 $where_params = [];
 
 if ($busca !== '') {
-    $where_clauses[] = "(p.nome_produto LIKE ? OR p.categoria LIKE ? OR f.nome LIKE ?)";
-    $where_types .= 'sss';
+    $where_clauses[] = "p.nome_produto LIKE ?";
+    $where_types .= 's';
     $busca_like = '%' . $busca . '%';
-    array_push($where_params, $busca_like, $busca_like, $busca_like);
+    $where_params[] = $busca_like;
 }
 
 if ($categoria_filtro !== '') {
@@ -142,8 +142,8 @@ if(isset($_GET['status'])){
 <p>Produtos cadastrados no estoque.</p>
 <form action="" method="get" class="row g-2 align-items-end mb-3">
     <div class="col-12 col-md-4">
-        <label for="busca" class="form-label mb-1 small">Busca</label>
-        <input type="text" id="busca" name="busca" class="form-control form-control-sm" placeholder="Nome, categoria ou fornecedor" value="<?php echo htmlspecialchars($busca); ?>">
+        <label for="busca" class="form-label mb-1 small">Produtos</label>
+        <input type="text" id="busca" name="busca" class="form-control form-control-sm" placeholder="Nome do produto" value="<?php echo htmlspecialchars($busca); ?>">
     </div>
     <div class="col-12 col-md-3">
         <label for="categoria" class="form-label mb-1 small">Categoria</label>
@@ -151,8 +151,8 @@ if(isset($_GET['status'])){
     </div>
     <div class="col-12 col-md-2">
         <label for="fornecedor_id" class="form-label mb-1 small">Fornecedor</label>
-        <select id="fornecedor_id" name="fornecedor_id" class="form-select form-select-sm">
-            <option value="0">Todos</option>
+        <select id="fornecedor_id" name="fornecedor_id" class="form-select form-select-sm filtro-fornecedor-select">
+            <option value="">Todos</option>
             <?php foreach ($fornecedores as $fornecedor): ?>
                 <option value="<?php echo (int) $fornecedor['id_fornecedor']; ?>" <?php echo $fornecedor_filtro === (int) $fornecedor['id_fornecedor'] ? 'selected' : ''; ?>>
                     <?php echo htmlspecialchars($fornecedor['nome']); ?>
@@ -177,6 +177,51 @@ if(isset($_GET['status'])){
         <a href="index.php" class="btn btn-link btn-sm px-0">Limpar filtros</a>
     </div>
 </form>
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+    .filtro-fornecedor-select + .select2-container--default .select2-selection--single {
+        height: 43.4px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+    }
+    .filtro-fornecedor-select + .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 41.4px;
+        color: #0f172a;
+        padding-left: 12px;
+    }
+    .filtro-fornecedor-select + .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 43.4px;
+    }
+    .select2-dropdown {
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .select2-search--dropdown .select2-search__field {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 6px 8px;
+    }
+</style>
+<script>
+    (function () {
+        window.addEventListener('load', function () {
+            if (!window.jQuery || !jQuery.fn || !jQuery.fn.select2) return;
+            var $fornecedor = jQuery('#fornecedor_id');
+            if (!$fornecedor.length) return;
+            $fornecedor.select2({
+                width: '100%',
+                placeholder: 'Todos',
+                allowClear: true,
+                minimumResultsForSearch: 0
+            });
+        });
+    })();
+</script>
 
 <?php
 if(mysqli_num_rows($result) > 0):

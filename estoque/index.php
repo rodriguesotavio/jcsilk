@@ -22,7 +22,8 @@ if (!in_array($itens_por_pagina, $opcoes_itens_por_pagina, true)) {
 $pagina_atual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
 $pagina_atual = $pagina_atual > 0 ? $pagina_atual : 1;
 
-$busca = isset($_GET['busca']) ? trim((string) $_GET['busca']) : '';
+$produto_busca = isset($_GET['produto']) ? trim((string) $_GET['produto']) : '';
+$usuario_busca = isset($_GET['usuario']) ? trim((string) $_GET['usuario']) : '';
 $tipo_filtro = isset($_GET['tipo_movimento']) ? (string) $_GET['tipo_movimento'] : '';
 $tipos_validos = ['', 'Entrada', 'Saída'];
 if (!in_array($tipo_filtro, $tipos_validos, true)) {
@@ -32,11 +33,15 @@ if (!in_array($tipo_filtro, $tipos_validos, true)) {
 $where_clauses = [];
 $where_types = '';
 $where_params = [];
-if ($busca !== '') {
-    $where_clauses[] = "(p.nome_produto LIKE ? OR u.nome LIKE ?)";
-    $where_types .= 'ss';
-    $busca_like = '%' . $busca . '%';
-    array_push($where_params, $busca_like, $busca_like);
+if ($produto_busca !== '') {
+    $where_clauses[] = "p.nome_produto LIKE ?";
+    $where_types .= 's';
+    $where_params[] = '%' . $produto_busca . '%';
+}
+if ($usuario_busca !== '') {
+    $where_clauses[] = "u.nome LIKE ?";
+    $where_types .= 's';
+    $where_params[] = '%' . $usuario_busca . '%';
 }
 if ($tipo_filtro !== '') {
     $where_clauses[] = "e.tipo_movimento = ?";
@@ -133,9 +138,13 @@ if(isset($_GET['status'])){
 
 <p>Registro de todas as entradas e saídas de produtos no estoque.</p>
 <form action="" method="get" class="row g-2 align-items-end mb-3">
-    <div class="col-12 col-md-5">
-        <label for="busca" class="form-label mb-1 small">Busca</label>
-        <input type="text" id="busca" name="busca" class="form-control form-control-sm" placeholder="Produto ou usuário" value="<?php echo htmlspecialchars($busca); ?>">
+    <div class="col-12 col-md-4">
+        <label for="produto" class="form-label mb-1 small">Produto</label>
+        <input type="text" id="produto" name="produto" class="form-control form-control-sm" placeholder="Nome do produto" value="<?php echo htmlspecialchars($produto_busca); ?>">
+    </div>
+    <div class="col-12 col-md-3">
+        <label for="usuario" class="form-label mb-1 small">Usuário</label>
+        <input type="text" id="usuario" name="usuario" class="form-control form-control-sm" placeholder="Nome do usuário" value="<?php echo htmlspecialchars($usuario_busca); ?>">
     </div>
     <div class="col-12 col-md-3">
         <label for="tipo_movimento" class="form-label mb-1 small">Tipo</label>
