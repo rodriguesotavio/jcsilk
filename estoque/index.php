@@ -25,13 +25,6 @@ if (!$result) {
 }
 ?>
 
-<style>
-.col-qtd {
-    width: 150px;
-}
-</style>
-
-
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Histórico de Movimentações de Estoque</h2>
     <a href="novo.php" class="btn btn-primary">

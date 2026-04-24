@@ -1,0 +1,237 @@
+:root {
+    --bg-main: #f3f6fb;
+    --bg-surface: #ffffff;
+    --bg-sidebar: #0f172a;
+    --bg-sidebar-soft: #1e293b;
+    --text-main: #0f172a;
+    --text-soft: #64748b;
+    --border-soft: #e2e8f0;
+    --primary: #1d4ed8;
+    --primary-hover: #1e40af;
+    --success: #15803d;
+    --danger: #b91c1c;
+    --warning: #d97706;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 6px 20px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 12px 26px rgba(15, 23, 42, 0.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+    font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+body.app-shell {
+    background: var(--bg-main);
+    color: var(--text-main);
+}
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    align-items: stretch;
+}
+
+.sidebar {
+    width: 270px;
+    min-width: 270px;
+    max-width: 270px;
+    flex: 0 0 270px;
+    min-height: 100vh;
+    height: auto;
+    background: linear-gradient(160deg, var(--bg-sidebar) 0%, #1e293b 100%);
+    color: #cbd5e1;
+    padding: 24px 14px;
+    box-shadow: var(--shadow-sm);
+}
+
+.sidebar-subtitle {
+    color: #94a3b8;
+    font-size: 0.86rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.sidebar .nav {
+    gap: 4px;
+}
+
+.sidebar .nav-link {
+    color: #cbd5e1;
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: rgba(148, 163, 184, 0.18);
+    color: #ffffff;
+    transform: translateX(2px);
+}
+
+.sidebar-user {
+    border-top: 1px solid rgba(148, 163, 184, 0.3);
+    padding: 16px 12px 4px;
+    color: #94a3b8;
+}
+
+.content {
+    padding: 28px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+p {
+    color: #334155;
+}
+
+.card {
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+    border-bottom: 1px solid var(--border-soft);
+    font-weight: 600;
+}
+
+.table {
+    border-color: var(--border-soft);
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.table thead th {
+    background: #eff6ff;
+    color: #1e3a8a;
+    border-bottom-width: 1px;
+    font-weight: 600;
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: #f8fafc;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.btn-success {
+    background-color: var(--success);
+    border-color: var(--success);
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    border-color: var(--danger);
+}
+
+.btn-warning {
+    color: #ffffff;
+    background-color: var(--warning);
+    border-color: var(--warning);
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border-color: #cbd5e1;
+    padding: 0.65rem 0.8rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 0.18rem rgba(59, 130, 246, 0.18);
+}
+
+.alert {
+    border-radius: 10px;
+    border-width: 1px;
+}
+
+.badge {
+    border-radius: 999px;
+    font-weight: 600;
+    padding: 0.45em 0.72em;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+}
+
+.page-title {
+    margin: 0;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top left, #dbeafe, #eff6ff 38%, #f8fafc 72%);
+    padding: 24px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    padding: 32px;
+}
+
+.login-title {
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: var(--text-soft);
+    margin-bottom: 24px;
+}
+
+@media (max-width: 767px) {
+    .content {
+        padding: 16px;
+    }
+}

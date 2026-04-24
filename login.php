@@ -77,27 +77,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JC Silk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .login-container {
-            max-width: 400px;
-            margin-top: 10vh;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: #ffffff;
-        }
-    </style>
+    <link rel="stylesheet" href="./assets/css/system.css">
 </head>
 <body>
-
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 login-container">
-            <h2 class="text-center mb-4">Login no Sistema</h2>
+<div class="login-page">
+    <div class="login-card">
+            <h2 class="login-title">JC Silk</h2>
+            <p class="login-subtitle">Acesse o painel empresarial</p>
 
             <?php
                 if(!empty($login_err)){
@@ -118,7 +108,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     <button type="submit" class="btn btn-primary">Entrar</button>
                 </div>
             </form>
-        </div>
     </div>
 </div>
 

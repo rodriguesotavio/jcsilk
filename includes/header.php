@@ -42,42 +42,21 @@ $active_module = isset($url_parts[0]) && !empty($url_parts[0]) && $url_parts[0] 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JC Silk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
-    <style>
-        .sidebar {
-            height: 100vh;
-            background-color: #343a40;
-            color: white;
-            padding-top: 20px;
-            min-width: 250px;
-        }
-        .sidebar a {
-            color: #adb5bd;
-            padding: 10px 15px;
-            display: block;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-        .sidebar a:visited,
-        .sidebar a:focus,
-        .sidebar a:active {
-            color: #adb5bd;
-        }
-        .sidebar a:hover, .sidebar a.active {
-            background-color: #495057;
-            color: white;
-        }
-        .content {
-            padding: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/system.css">
 </head>
-<body>
+<body class="app-shell">
 
-<div class="d-flex">
-    <div class="sidebar d-none d-md-block">
-        <h4 class="text-center mb-4 text-white">JC Silk</h4>
+<div class="app-layout">
+    <aside class="sidebar d-none d-md-flex flex-column">
+        <div>
+            <h4 class="text-center mb-4 text-white">JC Silk</h4>
+            <p class="sidebar-subtitle text-center mb-4">Painel de Gestão</p>
+        </div>
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link <?php echo $is_dashboard_active ? 'active' : ''; ?>" href="<?php echo $base_url; ?>">
@@ -118,9 +97,9 @@ $active_module = isset($url_parts[0]) && !empty($url_parts[0]) && $url_parts[0] 
                 </a>
             </li>
         </ul>
-        <div class="mt-auto p-3">
-             <small class="text-white-50">Logado como: <?php echo htmlspecialchars($nome_usuario); ?></small>
+        <div class="sidebar-user mt-auto">
+             <small>Logado como: <?php echo htmlspecialchars($nome_usuario); ?></small>
         </div>
-    </div>
+    </aside>
 
-    <div class="flex-grow-1 content">
+    <main class="content flex-grow-1">
