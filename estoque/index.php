@@ -1,7 +1,11 @@
 <?php
 require_once '../includes/header.php';
 
-$itens_por_pagina = 10;
+$opcoes_itens_por_pagina = [10, 25, 50, 100];
+$itens_por_pagina = isset($_GET['itens_por_pagina']) ? (int) $_GET['itens_por_pagina'] : 10;
+if (!in_array($itens_por_pagina, $opcoes_itens_por_pagina, true)) {
+    $itens_por_pagina = 10;
+}
 $pagina_atual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
 $pagina_atual = $pagina_atual > 0 ? $pagina_atual : 1;
 
@@ -150,7 +154,27 @@ if(mysqli_num_rows($result) > 0):
     unset($query_params['pagina']);
 ?>
 <nav aria-label="Paginação de movimentações de estoque" class="mt-4">
-    <ul class="pagination justify-content-end">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-3">
+        <form action="" method="get" class="d-flex align-items-center gap-2 mb-0">
+            <label for="itens_por_pagina" class="form-label mb-0 small text-muted text-nowrap">Registros por página:</label>
+            <?php
+                foreach ($_GET as $param => $valor) {
+                    if ($param !== 'itens_por_pagina' && $param !== 'pagina') {
+                        echo '<input type="hidden" name="' . htmlspecialchars($param) . '" value="' . htmlspecialchars($valor) . '">';
+                    }
+                }
+            ?>
+            <select name="itens_por_pagina" id="itens_por_pagina" class="form-select form-select-sm" style="min-width: 96px;" onchange="this.form.submit()">
+                <?php foreach ($opcoes_itens_por_pagina as $opcao): ?>
+                    <option value="<?php echo $opcao; ?>" <?php echo $opcao === $itens_por_pagina ? 'selected' : ''; ?>>
+                        <?php echo $opcao; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    </div>
+    <ul class="pagination justify-content-end mb-0">
         <?php
             $pagina_anterior = $pagina_atual - 1;
             $pagina_proxima = $pagina_atual + 1;
@@ -172,6 +196,7 @@ if(mysqli_num_rows($result) > 0):
             <a class="page-link" href="<?php echo $pagina_atual >= $total_paginas ? '#' : $url_proxima; ?>" aria-label="Próxima página">Próxima</a>
         </li>
     </ul>
+    </div>
 </nav>
 <?php
 mysqli_free_result($result);
