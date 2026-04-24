@@ -81,6 +81,11 @@ $active_module = isset($url_parts[0]) && !empty($url_parts[0]) && $url_parts[0] 
                     <i class="fas fa-truck me-2"></i><span class="nav-label">Fornecedores</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo ($active_module == 'relatorios') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/relatorios" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Relatórios">
+                    <i class="fas fa-chart-line me-2"></i><span class="nav-label">Relatórios</span>
+                </a>
+            </li>
             <?php if ($cargo_usuario == 'Administrador'): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo ($active_module == 'usuarios') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/usuarios" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Usuários">
