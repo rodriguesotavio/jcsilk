@@ -2,7 +2,8 @@
 require_once '../includes/header.php';
 
 $nome_produto = $descricao = $categoria = $preco_unitario = $fornecedor_id = "";
-$nome_err = $preco_err = $fornecedor_err = "";
+$estoque_minimo = 5;
+$nome_err = $preco_err = $fornecedor_err = $estoque_minimo_err = "";
 
 $fornecedores = [];
 $sql_fornecedores = "SELECT id_fornecedor, nome FROM fornecedores ORDER BY nome ASC";
@@ -43,19 +44,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     $descricao = trim($_POST["descricao"]);
     $categoria = trim($_POST["categoria"]);
+    $estoque_minimo = isset($_POST["estoque_minimo"]) ? (int) $_POST["estoque_minimo"] : 5;
+    if ($estoque_minimo < 0) {
+        $estoque_minimo_err = "O estoque mínimo deve ser igual ou maior que zero.";
+    }
 
-    if(empty($nome_err) && empty($preco_err) && empty($fornecedor_err)){
+    if(empty($nome_err) && empty($preco_err) && empty($fornecedor_err) && empty($estoque_minimo_err)){
 
-        $sql = "INSERT INTO produtos (nome_produto, descricao, categoria, preco_unitario, quantidade_estoque, fornecedor_id) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO produtos (nome_produto, descricao, categoria, preco_unitario, quantidade_estoque, estoque_minimo, fornecedor_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         if($stmt = mysqli_prepare($link, $sql)){
-            mysqli_stmt_bind_param($stmt, "sssdii", $param_nome, $param_descricao, $param_categoria, $param_preco, $param_quantidade, $param_fornecedor_id);
+            mysqli_stmt_bind_param($stmt, "sssdiii", $param_nome, $param_descricao, $param_categoria, $param_preco, $param_quantidade, $param_estoque_minimo, $param_fornecedor_id);
 
             $param_nome = $nome_produto;
             $param_descricao = $descricao;
             $param_categoria = $categoria;
             $param_preco = $preco_unitario;
             $param_quantidade = $quantidade_estoque;
+            $param_estoque_minimo = $estoque_minimo;
             $param_fornecedor_id = $fornecedor_id;
 
             if(mysqli_stmt_execute($stmt)){
@@ -128,6 +134,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             <label for="quantidade_estoque" class="form-label">Quantidade em Estoque Atual</label>
             <input type="number" class="form-control" value="0" min="0" disabled>
             <div class="form-text">A quantidade inicial é 0 e deve ser ajustada via Movimentação de Estoque.</div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="estoque_minimo" class="form-label">Estoque Mínimo (*)</label>
+            <input type="number" name="estoque_minimo" id="estoque_minimo" min="0" class="form-control <?php echo (!empty($estoque_minimo_err)) ? 'is-invalid' : ''; ?>" value="<?php echo htmlspecialchars((string) $estoque_minimo); ?>" required>
+            <div class="invalid-feedback"><?php echo $estoque_minimo_err; ?></div>
+            <div class="form-text">Usado para alertas automáticos de reposição no dashboard.</div>
         </div>
     </div>
 

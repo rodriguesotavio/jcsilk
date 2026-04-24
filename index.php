@@ -10,8 +10,8 @@ $produtos_alerta = [];
 $sql_resumo = "SELECT
     COUNT(*) AS total_produtos,
     SUM(CASE WHEN quantidade_estoque = 0 THEN 1 ELSE 0 END) AS total_sem_estoque,
-    SUM(CASE WHEN quantidade_estoque > 0 AND quantidade_estoque <= 5 THEN 1 ELSE 0 END) AS total_estoque_critico,
-    SUM(CASE WHEN quantidade_estoque > 5 AND quantidade_estoque <= 20 THEN 1 ELSE 0 END) AS total_estoque_baixo
+    SUM(CASE WHEN quantidade_estoque > 0 AND quantidade_estoque <= estoque_minimo THEN 1 ELSE 0 END) AS total_estoque_critico,
+    SUM(CASE WHEN quantidade_estoque > estoque_minimo AND quantidade_estoque <= (estoque_minimo + 10) THEN 1 ELSE 0 END) AS total_estoque_baixo
 FROM produtos";
 $result_resumo = mysqli_query($link, $sql_resumo);
 if ($result_resumo) {
@@ -28,10 +28,11 @@ $sql_alertas = "SELECT
     p.nome_produto,
     p.categoria,
     p.quantidade_estoque,
+    p.estoque_minimo,
     f.nome AS nome_fornecedor
 FROM produtos p
 JOIN fornecedores f ON p.fornecedor_id = f.id_fornecedor
-WHERE p.quantidade_estoque <= 20
+WHERE p.quantidade_estoque <= (p.estoque_minimo + 10)
 ORDER BY p.quantidade_estoque ASC, p.nome_produto ASC
 LIMIT 15";
 $result_alertas = mysqli_query($link, $sql_alertas);
@@ -80,7 +81,7 @@ if ($result_alertas) {
             <div class="col-md-3">
                 <div class="card h-100 border-warning">
                     <div class="card-body">
-                        <p class="text-muted small mb-2">Estoque Crítico (1 a 5)</p>
+                        <p class="text-muted small mb-2">Abaixo do Mínimo</p>
                         <h3 class="mb-0 text-warning"><?php echo $total_estoque_critico; ?></h3>
                     </div>
                 </div>
@@ -88,7 +89,7 @@ if ($result_alertas) {
             <div class="col-md-3">
                 <div class="card h-100 border-info">
                     <div class="card-body">
-                        <p class="text-muted small mb-2">Estoque Baixo (6 a 20)</p>
+                        <p class="text-muted small mb-2">Próximo do Mínimo</p>
                         <h3 class="mb-0 text-info"><?php echo $total_estoque_baixo; ?></h3>
                     </div>
                 </div>
@@ -123,7 +124,7 @@ if ($result_alertas) {
                                     <td>
                                         <?php if ((int) $produto_alerta['quantidade_estoque'] === 0): ?>
                                             <span class="badge bg-danger">Em Falta</span>
-                                        <?php elseif ((int) $produto_alerta['quantidade_estoque'] <= 5): ?>
+                                        <?php elseif ((int) $produto_alerta['quantidade_estoque'] <= (int) $produto_alerta['estoque_minimo']): ?>
                                             <span class="badge bg-warning text-dark">Crítico</span>
                                         <?php else: ?>
                                             <span class="badge bg-info text-dark">Baixo</span>

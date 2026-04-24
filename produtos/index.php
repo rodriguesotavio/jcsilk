@@ -27,7 +27,7 @@ if ($pagina_atual > $total_paginas) {
 
 $offset = ($pagina_atual - 1) * $itens_por_pagina;
 
-$sql = "SELECT p.id_produto, p.nome_produto, p.categoria, p.preco_unitario, p.quantidade_estoque, f.nome AS nome_fornecedor
+$sql = "SELECT p.id_produto, p.nome_produto, p.categoria, p.preco_unitario, p.quantidade_estoque, p.estoque_minimo, f.nome AS nome_fornecedor
         FROM produtos p
         JOIN fornecedores f ON p.fornecedor_id = f.id_fornecedor
         ORDER BY p.id_produto DESC
@@ -74,6 +74,7 @@ if(mysqli_num_rows($result) > 0):
                 <th>Categoria</th>
                 <th>Preço Unitário</th>
                 <th>Estoque</th>
+                <th>Mínimo</th>
                 <th>Fornecedor</th>
                 <th>Ações</th>
             </tr>
@@ -90,13 +91,14 @@ if(mysqli_num_rows($result) > 0):
                 <td>
                     <span class="badge
                         <?php
-                        if ($row['quantidade_estoque'] <= 5) echo 'bg-danger';
-                        elseif ($row['quantidade_estoque'] <= 20) echo 'bg-warning text-dark';
+                        if ((int) $row['quantidade_estoque'] === 0) echo 'bg-danger';
+                        elseif ((int) $row['quantidade_estoque'] <= (int) $row['estoque_minimo']) echo 'bg-warning text-dark';
                         else echo 'bg-success';
                         ?>">
                         <?php echo htmlspecialchars($row['quantidade_estoque']); ?>
                     </span>
                 </td>
+                <td><?php echo (int) $row['estoque_minimo']; ?></td>
                 <td><?php echo htmlspecialchars($row['nome_fornecedor']); ?></td>
                 <td>
                     <a href="editar.php?id=<?php echo $row['id_produto']; ?>" class="btn btn-sm btn-primary" title="Editar">
