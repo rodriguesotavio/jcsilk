@@ -97,10 +97,19 @@ if ($result_alertas) {
         </div>
 
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div
+                class="card-header d-flex justify-content-between align-items-center collapsible-card-header"
+                role="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#painelProdutosMinimos"
+                aria-expanded="true"
+                aria-controls="painelProdutosMinimos">
                 <span>Produtos em Falta / Mínimo</span>
-                <a href="<?php echo $base_url; ?>/produtos" class="btn btn-sm btn-primary">Ver cadastro completo</a>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="<?php echo $base_url; ?>/produtos" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">Ver cadastro completo</a>
+                </div>
             </div>
+            <div class="collapse show" id="painelProdutosMinimos">
             <div class="card-body">
                 <?php if (count($produtos_alerta) > 0): ?>
                     <div class="table-responsive">
@@ -136,8 +145,9 @@ if ($result_alertas) {
                         </table>
                     </div>
                 <?php else: ?>
-                    <div class="alert alert-success mb-0">Nenhum produto em faixa de alerta no momento.</div>
+                    <div class="alert alert-light border text-muted mb-0">Nenhum produto em faixa de alerta no momento.</div>
                 <?php endif; ?>
+            </div>
             </div>
         </div>
 

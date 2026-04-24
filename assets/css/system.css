@@ -244,6 +244,10 @@ p {
     color: #475569;
 }
 
+.collapsible-card-header {
+    cursor: pointer;
+}
+
 .login-page {
     min-height: 100vh;
     display: flex;
