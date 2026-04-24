@@ -6,6 +6,19 @@ if ($_SESSION['cargo'] != 'Administrador') {
     exit();
 }
 
+function logs_bind_dynamic(mysqli_stmt $stmt, string $types, array $params): bool
+{
+    if ($types === '') {
+        return true;
+    }
+    $bind_values = array_merge([$types], array_values($params));
+    $refs = [];
+    foreach ($bind_values as $k => $_) {
+        $refs[$k] = &$bind_values[$k];
+    }
+    return call_user_func_array([$stmt, 'bind_param'], $refs);
+}
+
 $opcoes_itens_por_pagina = [10, 25, 50, 100];
 $itens_por_pagina = isset($_GET['itens_por_pagina']) ? (int) $_GET['itens_por_pagina'] : 10;
 if (!in_array($itens_por_pagina, $opcoes_itens_por_pagina, true)) {
@@ -14,15 +27,40 @@ if (!in_array($itens_por_pagina, $opcoes_itens_por_pagina, true)) {
 $pagina_atual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
 $pagina_atual = $pagina_atual > 0 ? $pagina_atual : 1;
 
-$sql_total = "SELECT COUNT(*) AS total FROM acoes";
-$result_total = mysqli_query($link, $sql_total);
+$busca = isset($_GET['busca']) ? trim((string) $_GET['busca']) : '';
+$acao_filtro = isset($_GET['acao']) ? trim((string) $_GET['acao']) : '';
 
-if (!$result_total) {
+$where_clauses = [];
+$where_types = '';
+$where_params = [];
+if ($busca !== '') {
+    $where_clauses[] = "(a.detalhes LIKE ? OR u.nome LIKE ?)";
+    $where_types .= 'ss';
+    $busca_like = '%' . $busca . '%';
+    array_push($where_params, $busca_like, $busca_like);
+}
+if ($acao_filtro !== '') {
+    $where_clauses[] = "a.acao LIKE ?";
+    $where_types .= 's';
+    $where_params[] = '%' . $acao_filtro . '%';
+}
+$where_sql = count($where_clauses) > 0 ? " WHERE " . implode(" AND ", $where_clauses) : "";
+
+$sql_total = "SELECT COUNT(*) AS total
+    FROM acoes a
+    JOIN usuarios u ON a.id_usuario = u.id_usuario" . $where_sql;
+$stmt_total = mysqli_prepare($link, $sql_total);
+
+if (!$stmt_total) {
     echo '<div class="alert alert-danger">Erro ao carregar total do Log de Auditoria: ' . mysqli_error($link) . '</div>';
     $total_logs = 0;
 } else {
+    logs_bind_dynamic($stmt_total, $where_types, $where_params);
+    mysqli_stmt_execute($stmt_total);
+    $result_total = mysqli_stmt_get_result($stmt_total);
     $total_logs = (int) mysqli_fetch_assoc($result_total)['total'];
     mysqli_free_result($result_total);
+    mysqli_stmt_close($stmt_total);
 }
 
 $total_paginas = (int) ceil($total_logs / $itens_por_pagina);
@@ -42,10 +80,20 @@ $sql = "SELECT
             u.nome AS nome_usuario
         FROM acoes a
         JOIN usuarios u ON a.id_usuario = u.id_usuario
+        {$where_sql}
         ORDER BY a.data_acao DESC
-        LIMIT {$itens_por_pagina} OFFSET {$offset}";
+        LIMIT ? OFFSET ?";
 
-$result = mysqli_query($link, $sql);
+$stmt = mysqli_prepare($link, $sql);
+if ($stmt) {
+    $list_types = $where_types . 'ii';
+    $list_params = array_merge($where_params, [$itens_por_pagina, $offset]);
+    logs_bind_dynamic($stmt, $list_types, $list_params);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+} else {
+    $result = false;
+}
 
 if (!$result) {
     echo '<div class="alert alert-danger">Erro ao carregar o Log de Auditoria: ' . mysqli_error($link) . '</div>';
@@ -60,6 +108,23 @@ if (!$result) {
 </div>
 
 <p class="mb-4">Este histórico registra todas as operações críticas realizadas pelos usuários no sistema.</p>
+<form action="" method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-12 col-md-5">
+        <label for="busca" class="form-label mb-1 small">Busca</label>
+        <input type="text" id="busca" name="busca" class="form-control form-control-sm" placeholder="Usuário ou detalhes" value="<?php echo htmlspecialchars($busca); ?>">
+    </div>
+    <div class="col-12 col-md-4">
+        <label for="acao" class="form-label mb-1 small">Ação</label>
+        <input type="text" id="acao" name="acao" class="form-control form-control-sm" placeholder="Ex.: Login, Editou Produto" value="<?php echo htmlspecialchars($acao_filtro); ?>">
+    </div>
+    <div class="col-12 col-md-1 d-grid">
+        <input type="hidden" name="itens_por_pagina" value="<?php echo (int) $itens_por_pagina; ?>">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+    <div class="col-12">
+        <a href="index.php" class="btn btn-link btn-sm px-0">Limpar filtros</a>
+    </div>
+</form>
 
 <?php if ($logs_pagina_atual > 0): ?>
     <div class="table-responsive">
@@ -185,6 +250,9 @@ if (!$result) {
     </nav>
     <?php
     mysqli_free_result($result);
+    if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+        mysqli_stmt_close($stmt);
+    }
     ?>
 
 <?php else: ?>

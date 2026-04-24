@@ -1,6 +1,19 @@
 <?php
 require_once '../includes/header.php';
 
+function estoque_bind_dynamic(mysqli_stmt $stmt, string $types, array $params): bool
+{
+    if ($types === '') {
+        return true;
+    }
+    $bind_values = array_merge([$types], array_values($params));
+    $refs = [];
+    foreach ($bind_values as $k => $_) {
+        $refs[$k] = &$bind_values[$k];
+    }
+    return call_user_func_array([$stmt, 'bind_param'], $refs);
+}
+
 $opcoes_itens_por_pagina = [10, 25, 50, 100];
 $itens_por_pagina = isset($_GET['itens_por_pagina']) ? (int) $_GET['itens_por_pagina'] : 10;
 if (!in_array($itens_por_pagina, $opcoes_itens_por_pagina, true)) {
@@ -9,15 +22,45 @@ if (!in_array($itens_por_pagina, $opcoes_itens_por_pagina, true)) {
 $pagina_atual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
 $pagina_atual = $pagina_atual > 0 ? $pagina_atual : 1;
 
-$sql_total = "SELECT COUNT(*) AS total FROM estoque";
-$result_total = mysqli_query($link, $sql_total);
+$busca = isset($_GET['busca']) ? trim((string) $_GET['busca']) : '';
+$tipo_filtro = isset($_GET['tipo_movimento']) ? (string) $_GET['tipo_movimento'] : '';
+$tipos_validos = ['', 'Entrada', 'Saída'];
+if (!in_array($tipo_filtro, $tipos_validos, true)) {
+    $tipo_filtro = '';
+}
 
-if (!$result_total) {
+$where_clauses = [];
+$where_types = '';
+$where_params = [];
+if ($busca !== '') {
+    $where_clauses[] = "(p.nome_produto LIKE ? OR u.nome LIKE ?)";
+    $where_types .= 'ss';
+    $busca_like = '%' . $busca . '%';
+    array_push($where_params, $busca_like, $busca_like);
+}
+if ($tipo_filtro !== '') {
+    $where_clauses[] = "e.tipo_movimento = ?";
+    $where_types .= 's';
+    $where_params[] = $tipo_filtro;
+}
+$where_sql = count($where_clauses) > 0 ? " WHERE " . implode(" AND ", $where_clauses) : "";
+
+$sql_total = "SELECT COUNT(*) AS total
+    FROM estoque e
+    JOIN produtos p ON e.id_produto = p.id_produto
+    JOIN usuarios u ON e.id_usuario = u.id_usuario" . $where_sql;
+$stmt_total = mysqli_prepare($link, $sql_total);
+
+if (!$stmt_total) {
     die("Erro ao contar movimentações de estoque: " . mysqli_error($link));
 }
 
+estoque_bind_dynamic($stmt_total, $where_types, $where_params);
+mysqli_stmt_execute($stmt_total);
+$result_total = mysqli_stmt_get_result($stmt_total);
 $total_registros = (int) mysqli_fetch_assoc($result_total)['total'];
 mysqli_free_result($result_total);
+mysqli_stmt_close($stmt_total);
 $total_paginas = (int) ceil($total_registros / $itens_por_pagina);
 $total_paginas = $total_paginas > 0 ? $total_paginas : 1;
 
@@ -42,10 +85,20 @@ $sql = "SELECT
         FROM estoque e
         JOIN produtos p ON e.id_produto = p.id_produto
         JOIN usuarios u ON e.id_usuario = u.id_usuario
+        {$where_sql}
         ORDER BY e.data_movimento DESC
-        LIMIT {$itens_por_pagina} OFFSET {$offset}";
+        LIMIT ? OFFSET ?";
 
-$result = mysqli_query($link, $sql);
+$stmt = mysqli_prepare($link, $sql);
+if ($stmt) {
+    $list_types = $where_types . 'ii';
+    $list_params = array_merge($where_params, [$itens_por_pagina, $offset]);
+    estoque_bind_dynamic($stmt, $list_types, $list_params);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+} else {
+    $result = false;
+}
 
 if (!$result) {
     die("Erro ao consultar o histórico de estoque: " . mysqli_error($link));
@@ -79,6 +132,27 @@ if(isset($_GET['status'])){
 ?>
 
 <p>Registro de todas as entradas e saídas de produtos no estoque.</p>
+<form action="" method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-12 col-md-5">
+        <label for="busca" class="form-label mb-1 small">Busca</label>
+        <input type="text" id="busca" name="busca" class="form-control form-control-sm" placeholder="Produto ou usuário" value="<?php echo htmlspecialchars($busca); ?>">
+    </div>
+    <div class="col-12 col-md-3">
+        <label for="tipo_movimento" class="form-label mb-1 small">Tipo</label>
+        <select id="tipo_movimento" name="tipo_movimento" class="form-select form-select-sm">
+            <option value="" <?php echo $tipo_filtro === '' ? 'selected' : ''; ?>>Todos</option>
+            <option value="Entrada" <?php echo $tipo_filtro === 'Entrada' ? 'selected' : ''; ?>>Entrada</option>
+            <option value="Saída" <?php echo $tipo_filtro === 'Saída' ? 'selected' : ''; ?>>Saída</option>
+        </select>
+    </div>
+    <div class="col-12 col-md-1 d-grid">
+        <input type="hidden" name="itens_por_pagina" value="<?php echo (int) $itens_por_pagina; ?>">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+    <div class="col-12">
+        <a href="index.php" class="btn btn-link btn-sm px-0">Limpar filtros</a>
+    </div>
+</form>
 
 <?php
 if(mysqli_num_rows($result) > 0):
@@ -256,5 +330,8 @@ else:
 <?php endif; ?>
 
 <?php
+if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+    mysqli_stmt_close($stmt);
+}
 require_once '../includes/footer.php';
 ?>

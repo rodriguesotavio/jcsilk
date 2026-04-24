@@ -1,6 +1,21 @@
 <?php
 require_once '../includes/header.php';
 
+function bind_dynamic_params(mysqli_stmt $stmt, string $types, array $params): bool
+{
+    if ($types === '') {
+        return true;
+    }
+
+    $bind_values = array_merge([$types], array_values($params));
+    $refs = [];
+    foreach ($bind_values as $k => $_) {
+        $refs[$k] = &$bind_values[$k];
+    }
+
+    return call_user_func_array([$stmt, 'bind_param'], $refs);
+}
+
 $opcoes_itens_por_pagina = [10, 25, 50, 100];
 $itens_por_pagina = isset($_GET['itens_por_pagina']) ? (int) $_GET['itens_por_pagina'] : 10;
 if (!in_array($itens_por_pagina, $opcoes_itens_por_pagina, true)) {
@@ -9,15 +24,72 @@ if (!in_array($itens_por_pagina, $opcoes_itens_por_pagina, true)) {
 $pagina_atual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
 $pagina_atual = $pagina_atual > 0 ? $pagina_atual : 1;
 
-$sql_total = "SELECT COUNT(*) AS total FROM produtos";
-$result_total = mysqli_query($link, $sql_total);
-
-if (!$result_total) {
-    die("Erro ao contar produtos: " . mysqli_error($link));
+$busca = isset($_GET['busca']) ? trim((string) $_GET['busca']) : '';
+$categoria_filtro = isset($_GET['categoria']) ? trim((string) $_GET['categoria']) : '';
+$fornecedor_filtro = isset($_GET['fornecedor_id']) ? (int) $_GET['fornecedor_id'] : 0;
+$status_estoque = isset($_GET['status_estoque']) ? (string) $_GET['status_estoque'] : 'todos';
+$status_validos = ['todos', 'em_falta', 'abaixo_minimo', 'normal'];
+if (!in_array($status_estoque, $status_validos, true)) {
+    $status_estoque = 'todos';
 }
 
+$fornecedores = [];
+$sql_fornecedores = "SELECT id_fornecedor, nome FROM fornecedores ORDER BY nome ASC";
+$result_fornecedores = mysqli_query($link, $sql_fornecedores);
+if ($result_fornecedores) {
+    while ($row_fornecedor = mysqli_fetch_assoc($result_fornecedores)) {
+        $fornecedores[] = $row_fornecedor;
+    }
+    mysqli_free_result($result_fornecedores);
+}
+
+$where_clauses = [];
+$where_types = '';
+$where_params = [];
+
+if ($busca !== '') {
+    $where_clauses[] = "(p.nome_produto LIKE ? OR p.categoria LIKE ? OR f.nome LIKE ?)";
+    $where_types .= 'sss';
+    $busca_like = '%' . $busca . '%';
+    array_push($where_params, $busca_like, $busca_like, $busca_like);
+}
+
+if ($categoria_filtro !== '') {
+    $where_clauses[] = "p.categoria LIKE ?";
+    $where_types .= 's';
+    $where_params[] = '%' . $categoria_filtro . '%';
+}
+
+if ($fornecedor_filtro > 0) {
+    $where_clauses[] = "p.fornecedor_id = ?";
+    $where_types .= 'i';
+    $where_params[] = $fornecedor_filtro;
+}
+
+if ($status_estoque === 'em_falta') {
+    $where_clauses[] = "p.quantidade_estoque = 0";
+} elseif ($status_estoque === 'abaixo_minimo') {
+    $where_clauses[] = "p.quantidade_estoque > 0 AND p.quantidade_estoque <= p.estoque_minimo";
+} elseif ($status_estoque === 'normal') {
+    $where_clauses[] = "p.quantidade_estoque > p.estoque_minimo";
+}
+
+$where_sql = count($where_clauses) > 0 ? " WHERE " . implode(" AND ", $where_clauses) : "";
+
+$sql_total = "SELECT COUNT(*) AS total
+    FROM produtos p
+    JOIN fornecedores f ON p.fornecedor_id = f.id_fornecedor" . $where_sql;
+$stmt_total = mysqli_prepare($link, $sql_total);
+if (!$stmt_total) {
+    die("Erro ao preparar a contagem de produtos: " . mysqli_error($link));
+}
+bind_dynamic_params($stmt_total, $where_types, $where_params);
+mysqli_stmt_execute($stmt_total);
+$result_total = mysqli_stmt_get_result($stmt_total);
 $total_registros = (int) mysqli_fetch_assoc($result_total)['total'];
 mysqli_free_result($result_total);
+mysqli_stmt_close($stmt_total);
+
 $total_paginas = (int) ceil($total_registros / $itens_por_pagina);
 $total_paginas = $total_paginas > 0 ? $total_paginas : 1;
 
@@ -30,11 +102,18 @@ $offset = ($pagina_atual - 1) * $itens_por_pagina;
 $sql = "SELECT p.id_produto, p.nome_produto, p.categoria, p.preco_unitario, p.quantidade_estoque, p.estoque_minimo, f.nome AS nome_fornecedor
         FROM produtos p
         JOIN fornecedores f ON p.fornecedor_id = f.id_fornecedor
+        {$where_sql}
         ORDER BY p.id_produto DESC
-        LIMIT {$itens_por_pagina} OFFSET {$offset}";
-
-$result = mysqli_query($link, $sql);
-
+        LIMIT ? OFFSET ?";
+$stmt = mysqli_prepare($link, $sql);
+if (!$stmt) {
+    die("Erro ao preparar listagem de produtos: " . mysqli_error($link));
+}
+$list_types = $where_types . 'ii';
+$list_params = array_merge($where_params, [$itens_por_pagina, $offset]);
+bind_dynamic_params($stmt, $list_types, $list_params);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 if (!$result) {
     die("Erro ao consultar produtos: " . mysqli_error($link));
 }
@@ -61,6 +140,43 @@ if(isset($_GET['status'])){
 ?>
 
 <p>Produtos cadastrados no estoque.</p>
+<form action="" method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-12 col-md-4">
+        <label for="busca" class="form-label mb-1 small">Busca</label>
+        <input type="text" id="busca" name="busca" class="form-control form-control-sm" placeholder="Nome, categoria ou fornecedor" value="<?php echo htmlspecialchars($busca); ?>">
+    </div>
+    <div class="col-12 col-md-3">
+        <label for="categoria" class="form-label mb-1 small">Categoria</label>
+        <input type="text" id="categoria" name="categoria" class="form-control form-control-sm" value="<?php echo htmlspecialchars($categoria_filtro); ?>">
+    </div>
+    <div class="col-12 col-md-2">
+        <label for="fornecedor_id" class="form-label mb-1 small">Fornecedor</label>
+        <select id="fornecedor_id" name="fornecedor_id" class="form-select form-select-sm">
+            <option value="0">Todos</option>
+            <?php foreach ($fornecedores as $fornecedor): ?>
+                <option value="<?php echo (int) $fornecedor['id_fornecedor']; ?>" <?php echo $fornecedor_filtro === (int) $fornecedor['id_fornecedor'] ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($fornecedor['nome']); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="col-12 col-md-2">
+        <label for="status_estoque" class="form-label mb-1 small">Status Estoque</label>
+        <select id="status_estoque" name="status_estoque" class="form-select form-select-sm">
+            <option value="todos" <?php echo $status_estoque === 'todos' ? 'selected' : ''; ?>>Todos</option>
+            <option value="em_falta" <?php echo $status_estoque === 'em_falta' ? 'selected' : ''; ?>>Em falta</option>
+            <option value="abaixo_minimo" <?php echo $status_estoque === 'abaixo_minimo' ? 'selected' : ''; ?>>Abaixo mínimo</option>
+            <option value="normal" <?php echo $status_estoque === 'normal' ? 'selected' : ''; ?>>Normal</option>
+        </select>
+    </div>
+    <div class="col-12 col-md-1 d-grid">
+        <input type="hidden" name="itens_por_pagina" value="<?php echo (int) $itens_por_pagina; ?>">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+    <div class="col-12">
+        <a href="index.php" class="btn btn-link btn-sm px-0">Limpar filtros</a>
+    </div>
+</form>
 
 <?php
 if(mysqli_num_rows($result) > 0):
@@ -213,8 +329,14 @@ mysqli_free_result($result);
 else:
 ?>
 <div class="alert alert-info" role="alert">
-    Nenhum produto encontrado no estoque.
+    Nenhum produto encontrado para os filtros informados.
 </div>
 <?php endif; ?>
+
+<?php
+if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+    mysqli_stmt_close($stmt);
+}
+?>
 
 <?php require_once '../includes/footer.php'; ?>
