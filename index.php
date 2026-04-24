@@ -63,34 +63,34 @@ if ($result_alertas) {
 
         <div class="row g-4 mb-2">
             <div class="col-md-3">
-                <div class="card h-100">
+                <div class="card h-100 kpi-card">
                     <div class="card-body">
                         <p class="text-muted small mb-2">Total de Produtos</p>
-                        <h3 class="mb-0"><?php echo $total_produtos; ?></h3>
+                        <h3 class="mb-0 kpi-value"><?php echo $total_produtos; ?></h3>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card h-100 border-danger">
+                <div class="card h-100 kpi-card is-critical">
                     <div class="card-body">
                         <p class="text-muted small mb-2">Produtos em Falta</p>
-                        <h3 class="mb-0 text-danger"><?php echo $total_sem_estoque; ?></h3>
+                        <h3 class="mb-0 kpi-value"><?php echo $total_sem_estoque; ?></h3>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card h-100 border-warning">
+                <div class="card h-100 kpi-card is-warning">
                     <div class="card-body">
                         <p class="text-muted small mb-2">Abaixo do Mínimo</p>
-                        <h3 class="mb-0 text-warning"><?php echo $total_estoque_critico; ?></h3>
+                        <h3 class="mb-0 kpi-value"><?php echo $total_estoque_critico; ?></h3>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card h-100 border-info">
+                <div class="card h-100 kpi-card is-info">
                     <div class="card-body">
                         <p class="text-muted small mb-2">Próximo do Mínimo</p>
-                        <h3 class="mb-0 text-info"><?php echo $total_estoque_baixo; ?></h3>
+                        <h3 class="mb-0 kpi-value"><?php echo $total_estoque_baixo; ?></h3>
                     </div>
                 </div>
             </div>
@@ -98,7 +98,7 @@ if ($result_alertas) {
 
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Relatório de Produtos em Falta / Mínimo</span>
+                <span>Produtos em Falta / Mínimo</span>
                 <a href="<?php echo $base_url; ?>/produtos" class="btn btn-sm btn-primary">Ver cadastro completo</a>
             </div>
             <div class="card-body">
@@ -143,8 +143,8 @@ if ($result_alertas) {
 
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card mb-3 h-100">
-                    <div class="card-header bg-primary text-white">Controle de Produtos</div>
+                <div class="card mb-3 h-100 module-card">
+                    <div class="card-header">Controle de Produtos</div>
                     <div class="card-body">
                         <h5 class="card-title">Gerenciar Produtos</h5>
                         <p class="card-text">Visualize e edite os produtos disponíveis no estoque.</p>
@@ -153,8 +153,8 @@ if ($result_alertas) {
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card mb-3 h-100">
-                    <div class="card-header bg-info text-white">Movimentação e Saldo</div>
+                <div class="card mb-3 h-100 module-card">
+                    <div class="card-header">Movimentação e Saldo</div>
                     <div class="card-body">
                         <h5 class="card-title">Lançar Entrada/Saída</h5>
                         <p class="card-text">Registre todas as entradas e saídas para manter o saldo atualizado.</p>
@@ -163,8 +163,8 @@ if ($result_alertas) {
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card mb-3 h-100">
-                    <div class="card-header bg-success text-white">Registro de Fornecedores</div>
+                <div class="card mb-3 h-100 module-card">
+                    <div class="card-header">Registro de Fornecedores</div>
                     <div class="card-body">
                         <h5 class="card-title">Cadastro de Fornecedores</h5>
                         <p class="card-text">Mantenha os dados dos fornecedores atualizados.</p>
@@ -175,8 +175,8 @@ if ($result_alertas) {
 
             <?php if ($cargo_usuario == 'Administrador'): ?>
             <div class="col-md-4">
-                <div class="card mb-3 h-100">
-                    <div class="card-header bg-secondary text-white">Controle de Acesso</div>
+                <div class="card mb-3 h-100 module-card">
+                    <div class="card-header">Controle de Acesso</div>
                     <div class="card-body">
                         <h5 class="card-title">Gerenciar Usuários</h5>
                         <p class="card-text">Adicione ou inative usuários do sistema (apenas Administradores).</p>

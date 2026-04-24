@@ -200,6 +200,32 @@ p {
     margin: 0;
 }
 
+.kpi-card {
+    background: #fcfdff;
+    border: 1px solid var(--border-soft);
+}
+
+.kpi-card .kpi-value {
+    color: #0f172a;
+}
+
+.kpi-card.is-critical {
+    border-left: 4px solid #dc2626;
+}
+
+.kpi-card.is-warning {
+    border-left: 4px solid #d97706;
+}
+
+.kpi-card.is-info {
+    border-left: 4px solid #0ea5e9;
+}
+
+.module-card .card-header {
+    background: #f8fafc;
+    color: #1e293b;
+}
+
 .login-page {
     min-height: 100vh;
     display: flex;
