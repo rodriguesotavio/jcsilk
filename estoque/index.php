@@ -174,7 +174,7 @@ if(mysqli_num_rows($result) > 0):
             </select>
         </form>
     </div>
-    <ul class="pagination justify-content-end mb-0">
+    <ul class="pagination justify-content-end mb-0 flex-wrap">
         <?php
             $pagina_anterior = $pagina_atual - 1;
             $pagina_proxima = $pagina_atual + 1;
@@ -185,12 +185,60 @@ if(mysqli_num_rows($result) > 0):
             <a class="page-link" href="<?php echo $pagina_atual <= 1 ? '#' : $url_anterior; ?>" aria-label="Página anterior">Anterior</a>
         </li>
 
-        <?php for ($pagina = 1; $pagina <= $total_paginas; $pagina++): ?>
+        <?php
+            $janela = 3;
+            $compacto_ate = 5;
+            if ($total_paginas <= $compacto_ate):
+                for ($pagina = 1; $pagina <= $total_paginas; $pagina++):
+                    $url_pagina = '?' . http_build_query(array_merge($query_params, ['pagina' => $pagina]));
+        ?>
+        <li class="page-item <?php echo $pagina === $pagina_atual ? 'active' : ''; ?>">
+            <a class="page-link" href="<?php echo $url_pagina; ?>"><?php echo $pagina; ?></a>
+        </li>
+        <?php
+                endfor;
+            else:
+                $metade = intdiv($janela, 2);
+                $inicio_janela = $pagina_atual - $metade;
+                $fim_janela = $pagina_atual + ($janela - $metade - 1);
+
+                if ($inicio_janela < 1) {
+                    $inicio_janela = 1;
+                    $fim_janela = $janela;
+                }
+                if ($fim_janela > $total_paginas) {
+                    $fim_janela = $total_paginas;
+                    $inicio_janela = $total_paginas - $janela + 1;
+                }
+
+                if ($inicio_janela > 1):
+                    $url_pagina = '?' . http_build_query(array_merge($query_params, ['pagina' => 1]));
+        ?>
+        <li class="page-item <?php echo $pagina_atual === 1 ? 'active' : ''; ?>">
+            <a class="page-link" href="<?php echo $url_pagina; ?>">1</a>
+        </li>
+        <?php if ($inicio_janela > 2): ?>
+        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+        <?php endif; ?>
+        <?php endif; ?>
+
+        <?php for ($pagina = $inicio_janela; $pagina <= $fim_janela; $pagina++): ?>
             <?php $url_pagina = '?' . http_build_query(array_merge($query_params, ['pagina' => $pagina])); ?>
             <li class="page-item <?php echo $pagina === $pagina_atual ? 'active' : ''; ?>">
                 <a class="page-link" href="<?php echo $url_pagina; ?>"><?php echo $pagina; ?></a>
             </li>
         <?php endfor; ?>
+
+        <?php if ($fim_janela < $total_paginas): ?>
+            <?php if ($fim_janela < $total_paginas - 1): ?>
+            <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+            <?php endif; ?>
+            <?php $url_pagina = '?' . http_build_query(array_merge($query_params, ['pagina' => $total_paginas])); ?>
+            <li class="page-item <?php echo $pagina_atual === $total_paginas ? 'active' : ''; ?>">
+                <a class="page-link" href="<?php echo $url_pagina; ?>"><?php echo $total_paginas; ?></a>
+            </li>
+        <?php endif; ?>
+        <?php endif; ?>
 
         <li class="page-item <?php echo $pagina_atual >= $total_paginas ? 'disabled' : ''; ?>">
             <a class="page-link" href="<?php echo $pagina_atual >= $total_paginas ? '#' : $url_proxima; ?>" aria-label="Próxima página">Próxima</a>
