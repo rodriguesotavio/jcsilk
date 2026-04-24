@@ -53,52 +53,59 @@ $active_module = isset($url_parts[0]) && !empty($url_parts[0]) && $url_parts[0] 
 
 <div class="app-layout">
     <aside class="sidebar d-none d-md-flex flex-column">
-        <div>
-            <h4 class="text-center mb-4 text-white">JC Silk</h4>
-            <p class="sidebar-subtitle text-center mb-4">Painel de Gestão</p>
+        <div class="sidebar-top">
+            <div>
+                <h4 class="text-center mb-2 text-white sidebar-brand">JC Silk</h4>
+                <p class="sidebar-subtitle text-center mb-4">Painel de Gestão</p>
+            </div>
         </div>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link <?php echo $is_dashboard_active ? 'active' : ''; ?>" href="<?php echo $base_url; ?>">
-                    <i class="fas fa-home me-2"></i> Dashboard
+                <a class="nav-link <?php echo $is_dashboard_active ? 'active' : ''; ?>" href="<?php echo $base_url; ?>" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Dashboard">
+                    <i class="fas fa-home me-2"></i><span class="nav-label">Dashboard</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo ($active_module == 'produtos') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/produtos">
-                    <i class="fas fa-cubes me-2"></i> Produtos
+                <a class="nav-link <?php echo ($active_module == 'produtos') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/produtos" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Produtos">
+                    <i class="fas fa-cubes me-2"></i><span class="nav-label">Produtos</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo ($active_module == 'estoque') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/estoque">
-                    <i class="fas fa-boxes me-2"></i> Movimentação de Estoque
+                <a class="nav-link <?php echo ($active_module == 'estoque') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/estoque" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Movimentação de Estoque">
+                    <i class="fas fa-boxes me-2"></i><span class="nav-label">Movimentação de Estoque</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo ($active_module == 'fornecedores') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/fornecedores">
-                    <i class="fas fa-truck me-2"></i> Fornecedores
+                <a class="nav-link <?php echo ($active_module == 'fornecedores') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/fornecedores" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Fornecedores">
+                    <i class="fas fa-truck me-2"></i><span class="nav-label">Fornecedores</span>
                 </a>
             </li>
             <?php if ($cargo_usuario == 'Administrador'): ?>
             <li class="nav-item">
-                <a class="nav-link <?php echo ($active_module == 'usuarios') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/usuarios">
-                    <i class="fas fa-users-cog me-2"></i> Usuários
+                <a class="nav-link <?php echo ($active_module == 'usuarios') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/usuarios" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Usuários">
+                    <i class="fas fa-users-cog me-2"></i><span class="nav-label">Usuários</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link <?php echo ($active_module == 'logs') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/logs">
-                    <i class="fas fa-history me-2"></i> Log de Auditoria
+                <a class="nav-link <?php echo ($active_module == 'logs') ? 'active' : ''; ?>" href="<?php echo $base_url; ?>/logs" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Log de Auditoria">
+                    <i class="fas fa-history me-2"></i><span class="nav-label">Log de Auditoria</span>
                 </a>
             </li>
             <?php endif; ?>
             <li class="nav-item mt-auto">
-                <a class="nav-link" href="<?php echo $base_url; ?>/logout.php">
-                    <i class="fas fa-sign-out-alt me-2"></i> Sair
+                <a class="nav-link" href="<?php echo $base_url; ?>/logout.php" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Sair">
+                    <i class="fas fa-sign-out-alt me-2"></i><span class="nav-label">Sair</span>
                 </a>
             </li>
         </ul>
         <div class="sidebar-user mt-auto">
-             <small>Logado como: <?php echo htmlspecialchars($nome_usuario); ?></small>
+             <small class="sidebar-user-label">Logado como: <?php echo htmlspecialchars($nome_usuario); ?></small>
+             <div class="sidebar-footer-controls mt-2">
+                <button type="button" class="btn btn-sm btn-outline-light sidebar-toggle" id="sidebarToggleBtn" title="Reduzir/expandir menu">
+                    <i class="fas fa-angles-left" id="sidebarToggleIcon"></i>
+                </button>
+             </div>
         </div>
     </aside>
 
