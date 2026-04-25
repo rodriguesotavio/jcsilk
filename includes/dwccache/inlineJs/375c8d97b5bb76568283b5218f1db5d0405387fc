@@ -1,1 +1,0 @@
-s:328:"<script type="text/javascript">(function(){window.addEventListener('load',function(){if(!window.jQuery||!jQuery.fn||!jQuery.fn.select2)return;var $fornecedor=jQuery('#fornecedor_id');if(!$fornecedor.length)return;$fornecedor.select2({width:'100%',placeholder:'Todos',allowClear:true,minimumResultsForSearch:0});});})();</script>";
