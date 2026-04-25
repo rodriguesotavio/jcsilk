@@ -1,6 +1,7 @@
 <?php
 session_start();
 date_default_timezone_set('America/Sao_Paulo');
+require_once "compressor.php";
 
 $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
 $sub_dir = '/jcsilk';

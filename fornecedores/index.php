@@ -91,9 +91,7 @@ if(isset($_GET['status'])){
     </div>
 </form>
 
-<?php
-if(mysqli_num_rows($result) > 0):
-?>
+<?php if (mysqli_num_rows($result) > 0) { ?>
 <div class="table-responsive">
     <table class="table table-striped table-hover">
         <thead>
@@ -131,18 +129,17 @@ if(mysqli_num_rows($result) > 0):
         </tbody>
     </table>
 </div>
+<?php } else { ?>
+<div class="alert alert-info" role="alert">
+    Nenhum fornecedor encontrado no banco de dados.
+</div>
+<?php } ?>
+
 <?php
 mysqli_free_result($result);
 if (isset($stmt) && $stmt instanceof mysqli_stmt) {
     mysqli_stmt_close($stmt);
 }
-mysqli_close($link);
-
-else:
 ?>
-<div class="alert alert-info" role="alert">
-    Nenhum fornecedor encontrado no banco de dados.
-</div>
-<?php endif; ?>
 
 <?php require_once '../includes/footer.php'; ?>
